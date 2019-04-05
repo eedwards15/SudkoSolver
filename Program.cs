@@ -87,7 +87,7 @@ namespace SodkoSolverv2
             SetValue(1, 4, 5, ChangeType.BoardSetup);
             SetValue(7, 4, 4, ChangeType.BoardSetup);
             SetValue(8, 4, 2, ChangeType.BoardSetup);
-           
+        
             SetValue(2, 5, 3, ChangeType.BoardSetup);
             SetValue(3, 5, 4, ChangeType.BoardSetup);
             SetValue(4, 5, 2, ChangeType.BoardSetup);
@@ -113,11 +113,11 @@ namespace SodkoSolverv2
             int section = (gridSection * 3);
             int row_Section = rowSection * 3;
 
-            for (int x = (gridSection - 1) * 3; x < section; x++)
+            for (int x = (rowSection - 1) * 3; x < section; x++)
             {
-                for (int y = (rowSection - 1) * 3; y < row_Section; y++)
+                for (int y = (gridSection - 1) * 3; y < row_Section; y++)
                 {
-                    if (GameBoard[y, x].squareValue == value)
+                    if (GameBoard[x, y].squareValue == value)
                     {
                         return true;
                     }
@@ -132,11 +132,11 @@ namespace SodkoSolverv2
             int section = (gridSection * 3);
             int row_Section = rowSection * 3;
 
-            for (int x = (gridSection - 1) * 3; x < section; x++)
+            for (int x = (rowSection - 1) * 3; x < section; x++)
             {
-                for (int y = (rowSection - 1) * 3; y < row_Section; y++)
+                for (int y = (gridSection - 1) * 3; y < row_Section; y++)
                 {
-                    GameBoard[y, x].cantBe.Add(value); 
+                    GameBoard[x, y].cantBe.Add(value); 
 
                 }
             }
@@ -149,7 +149,10 @@ namespace SodkoSolverv2
         {
             if (GameBoard[row, col].cantChange) return false;
 
-
+            if (change == ChangeType.BoardSetup)
+            {
+                GameBoard[row, col].cantChange = true;
+            }
 
             if (GameBoard[row, col].cantBe.Contains(value) == false)
             {
@@ -166,11 +169,7 @@ namespace SodkoSolverv2
             }
 
 
-            if (change == ChangeType.BoardSetup)
-            {
-                //Update(value, row, col, change);
-                GameBoard[row, col].cantChange = true;
-            }
+
 
 
             return false; 
@@ -218,6 +217,12 @@ namespace SodkoSolverv2
 
     }
 
+    public class rowInfo{
+        public int row { get; set; }
+        public int rowCount { get; set; }
+    }
+
+
     public class AI
     {
         public Squares[,] savedStateGameBoard;
@@ -242,14 +247,82 @@ namespace SodkoSolverv2
             Random random = new Random();
             bool rowComplete = true;
             bool notSolved = true;
+            ///fillGrid(random, rowComplete); 
+            fillGridv2(); 
 
+            /*
             while (rowComplete)
             {
-                fillGrid(random, rowComplete);
+                rowComplete = fillGrid(random, rowComplete);
                 gameBoard.printBoard(); 
             }
+            */
 
         }
+
+
+        private void fillGridv2(){
+            List<rowInfo> rowInfos = new List<rowInfo>();
+
+            for (int row = 0; row < 9; row++)
+            {
+                int col_count = 0; 
+                for (int col = 0; col < 9; col++)
+                {
+
+                    if(gameBoard.GameBoard[row, col].squareValue == 0)
+                    {
+                        col_count = col_count + 1; 
+                    }
+
+
+
+                }
+
+                rowInfos.Add(new rowInfo() { row = row, rowCount = col_count }); 
+            }
+
+
+            //var rowsOrdered = rowInfos.OrderBy(x => x.rowCount).Select(x => x.row).ToList();
+
+            var rowsOrdered = new List<int>() { 5, 0, 1, 2, 4, 6, 8, 7, 3 };
+
+
+            foreach (var row in rowsOrdered)
+            {
+                for (int col = 0; col < 9; col++)
+                {
+
+                    var missing = CanBe.Where(item => gameBoard.GameBoard[col, row].cantBe.Contains(item)).ToList();
+                    int foundValue = -1;
+
+                    while (foundValue == -1)
+                    {
+                        foreach (var guess in missing)
+                        {
+                            if (foundValue == -1)
+                            {
+                                if (gameBoard.SetValue(col, row, guess, Board.ChangeType.Update))
+                                {
+                                    foundValue = 1;
+                                }
+                            }
+                        }
+
+                        foundValue = 0;
+                    }
+
+                }
+
+            }
+
+
+
+
+
+
+        }
+
 
         private bool fillGrid(Random random, bool rowComplete)
         {
@@ -272,7 +345,7 @@ namespace SodkoSolverv2
                         {
                             if (foundValue == -1)
                             {
-                                if (gameBoard.SetValue(col, row, missing[random.Next(0, missing.Count() - 1)], Board.ChangeType.Update))
+                                if (gameBoard.SetValue(col, row, guess, Board.ChangeType.Update))
                                 {
                                     foundValue = 1;
                                 }
