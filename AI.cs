@@ -8,14 +8,9 @@ namespace SodkoSolverv2
     public class AI
     {
         public Squares[,] savedStateGameBoard;
-
-        List<int> CanBe = new List<int>()
-        {
-            1,2,3,4,5,6,7,8,9
-        };
-
-
         public Board gameBoard;
+        List<int> CanBe = new List<int>() { 1,2,3,4,5,6,7,8,9 };
+
 
         public AI(Board board)
         {
@@ -27,40 +22,25 @@ namespace SodkoSolverv2
         public void solveBoard()
         {
 
-            fillGridV3();
-
-
-
-        }
-
-        private void fillGridV3()
-        {
             bool solved = false;
-
-
-
 
             while (!solved)
             {
-
                 try
                 {
                     solved = Logic(ref solved);
                 }
                 catch (Exception ex)
                 {
-                    gameBoard = new Board(); 
+                    //reset Board. 
+                    gameBoard = new Board();
                 }
-
-
             }
 
-            gameBoard.printBoard(); 
-
-
-
+            gameBoard.printBoard();
 
         }
+
 
         private bool Logic(ref bool solved)
         {
@@ -105,7 +85,7 @@ namespace SodkoSolverv2
                     randomGuess = guess.First();
                 }
 
-                gameBoard.SetValue(lowestCol, lowestRow, randomGuess, Board.ChangeType.Update);
+                gameBoard.SetValue(lowestCol, lowestRow, randomGuess, ChangeType.Update);
             }
 
             if (lowestCol == -1 && lowestRow == -1 && lowestCount == -1)
