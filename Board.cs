@@ -7,21 +7,14 @@ namespace SodkoSolverv2
     {
         public Squares[,] GameBoard;
 
-        public enum ChangeType
-        {
-            Update = 0,
-            FirstSet = 1,
-            BoardSetup = 2
-        }
-
         public Board()
         {
             GameBoard = new Squares[9, 9];
-            init();
+            Init();
             SetupInitValues();
         }
 
-        private void init()
+        private void Init()
         {
             for (int row = 0; row < 9; row++)
             {
@@ -32,7 +25,7 @@ namespace SodkoSolverv2
             }
         }
 
-        public void printBoard()
+        public void PrintBoard()
         {
             for (int row = 0; row < 9; row++)
             {
@@ -57,7 +50,6 @@ namespace SodkoSolverv2
                 {0,5,1,4,0,6,0,3,0},
                 {0,0,4,8,0,0,0,0,0},
                 {0,2,0,0,5,0,8,0,0}
-
             };
 
 
@@ -72,19 +64,17 @@ namespace SodkoSolverv2
                     }
                 }
             }
-
- 
-
         }
 
-        public bool checkSquares(int gridSection, int rowSection, int value)
+        public bool CheckSquares(int colSection, int rowSection, int value)
         {
-            int section = (gridSection * 3);
+            int section = (colSection * 3);
+
             int row_Section = rowSection * 3;
 
             for (int x = (rowSection - 1) * 3; x < row_Section; x++)
             {
-                for (int y = (gridSection - 1) * 3; y < section; y++)
+                for (int y = (colSection - 1) * 3; y < section; y++)
                 {
                     if (GameBoard[x, y].squareValue == value)
                     {
@@ -96,7 +86,7 @@ namespace SodkoSolverv2
             return false;
         }
 
-        public bool miniGridUpdate(int colsection, int rowSection, int value)
+        public bool MiniGridUpdate(int colsection, int rowSection, int value)
         {
             int section = (colsection * 3);
             int row_Section = rowSection * 3;
@@ -117,27 +107,21 @@ namespace SodkoSolverv2
         {
             if (GameBoard[row, col].cantChange) return false;
 
-            if (change == ChangeType.BoardSetup)
-            {
-                GameBoard[row, col].cantChange = true;
-            }
+            if (change == ChangeType.BoardSetup) { GameBoard[row, col].cantChange = true; }
 
             if (GameBoard[row, col].cantBe.Contains(value) == false)
             {
                 int colSection = GetSections(col);
                 int rowSection = GetSections(row);
 
-                if (checkSquares(colSection, rowSection, value) == false)
+                if (CheckSquares(colSection, rowSection, value) == false)
                 {
-                    miniGridUpdate(colSection, rowSection, value);
-                    Update(value, row, col, ChangeType.Update);
+                    MiniGridUpdate(colSection, rowSection, value);
+                    Update(value, row, col);
                     GameBoard[row, col].squareValue = value;
                     return true;
                 }
             }
-
-
-
 
 
             return false;
@@ -156,14 +140,14 @@ namespace SodkoSolverv2
             return 3;
         }
 
-        private void Update(int value, int row, int col, ChangeType changeType)
+        private void Update(int value, int row, int col)
         {
-            UpdateRow(value, row, col, changeType);
+            UpdateRow(value, row, col);
 
-            UpdateColumn(value, row, col, changeType);
+            UpdateColumn(value, row, col);
         }
 
-        private void UpdateColumn(int value, int row, int col, ChangeType changeType)
+        private void UpdateColumn(int value, int row, int col)
         {
 
 
@@ -174,7 +158,7 @@ namespace SodkoSolverv2
 
         }
 
-        private void UpdateRow(int value, int row, int col, ChangeType changeType)
+        private void UpdateRow(int value, int row, int col)
         {
             for (int _row = 0; _row < 9; _row++)
             {
