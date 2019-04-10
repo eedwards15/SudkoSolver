@@ -10,11 +10,11 @@ namespace SodkoSolverv2
         public Board()
         {
             GameBoard = new Squares[9, 9];
-            init();
+            Init();
             SetupInitValues();
         }
 
-        private void init()
+        private void Init()
         {
             for (int row = 0; row < 9; row++)
             {
@@ -25,7 +25,7 @@ namespace SodkoSolverv2
             }
         }
 
-        public void printBoard()
+        public void PrintBoard()
         {
             for (int row = 0; row < 9; row++)
             {
@@ -66,7 +66,7 @@ namespace SodkoSolverv2
             }
         }
 
-        public bool checkSquares(int colSection, int rowSection, int value)
+        public bool CheckSquares(int colSection, int rowSection, int value)
         {
             int section = (colSection * 3);
 
@@ -86,7 +86,7 @@ namespace SodkoSolverv2
             return false;
         }
 
-        public bool miniGridUpdate(int colsection, int rowSection, int value)
+        public bool MiniGridUpdate(int colsection, int rowSection, int value)
         {
             int section = (colsection * 3);
             int row_Section = rowSection * 3;
@@ -114,9 +114,9 @@ namespace SodkoSolverv2
                 int colSection = GetSections(col);
                 int rowSection = GetSections(row);
 
-                if (checkSquares(colSection, rowSection, value) == false)
+                if (CheckSquares(colSection, rowSection, value) == false)
                 {
-                    miniGridUpdate(colSection, rowSection, value);
+                    MiniGridUpdate(colSection, rowSection, value);
                     Update(value, row, col);
                     GameBoard[row, col].squareValue = value;
                     return true;

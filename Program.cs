@@ -12,7 +12,7 @@ namespace SodkoSolverv2
         static void Main(string[] args)
         {
             AI aI = new AI(new Board()); 
-            aI.solveBoard();
+            aI.SolveBoard();
         }
     }
 
