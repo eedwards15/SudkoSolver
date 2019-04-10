@@ -66,45 +66,34 @@ namespace SodkoSolverv2
 
         public void SetupInitValues()
         {
-            SetValue(0, 0, 2, ChangeType.BoardSetup);
-            SetValue(8, 0, 3, ChangeType.BoardSetup);
- 
-            SetValue(1, 1, 1, ChangeType.BoardSetup);
-            SetValue(2, 1, 4, ChangeType.BoardSetup);
-            SetValue(6, 1, 9, ChangeType.BoardSetup);
-   
-            SetValue(3, 2, 7, ChangeType.BoardSetup);
-            SetValue(3, 2, 8, ChangeType.BoardSetup);
-            SetValue(5, 2, 1, ChangeType.BoardSetup);
-      
-            SetValue(2, 3, 7, ChangeType.BoardSetup);
-            SetValue(3, 3, 3, ChangeType.BoardSetup);
-            SetValue(4, 3, 5, ChangeType.BoardSetup);
-            SetValue(5, 3, 6, ChangeType.BoardSetup);
-            SetValue(6, 3, 8, ChangeType.BoardSetup);
-        
-            SetValue(0, 4, 6, ChangeType.BoardSetup);
-            SetValue(1, 4, 5, ChangeType.BoardSetup);
-            SetValue(7, 4, 4, ChangeType.BoardSetup);
-            SetValue(8, 4, 2, ChangeType.BoardSetup);
-        
-            SetValue(2, 5, 3, ChangeType.BoardSetup);
-            SetValue(3, 5, 4, ChangeType.BoardSetup);
-            SetValue(4, 5, 2, ChangeType.BoardSetup);
-            SetValue(5, 5, 8, ChangeType.BoardSetup);
-            SetValue(6, 5, 7, ChangeType.BoardSetup);
-       
-            SetValue(3, 6, 5, ChangeType.BoardSetup);
-            SetValue(4, 6, 7, ChangeType.BoardSetup);
-            SetValue(5, 6, 9, ChangeType.BoardSetup);
-        
-            SetValue(1, 7, 4, ChangeType.BoardSetup);
-            SetValue(2, 7, 2, ChangeType.BoardSetup);
-            SetValue(6, 7, 6, ChangeType.BoardSetup);
-            SetValue(7, 7, 9, ChangeType.BoardSetup);
-         
-            SetValue(0, 8, 8, ChangeType.BoardSetup);
-            SetValue(8, 8, 1, ChangeType.BoardSetup);
+            int[,] puzzle = new int[9, 9] {
+                { 8, 5, 0, 0, 9, 0, 4, 0,7},
+                {9, 0, 0, 5, 0, 0, 0, 0, 0},
+                {0, 6, 0, 0, 0, 7, 9, 0, 5},
+                {0, 2, 0, 1, 0, 0, 0, 4, 0},
+                {7, 9, 8, 0, 0, 0, 1, 2, 3},
+                {0, 4, 0, 0, 0, 2, 0, 5, 0},
+                {4, 0, 2, 7, 0, 0, 0, 9, 0},
+                {0, 0, 0, 0, 0, 1, 0, 0, 8},
+                {1, 0, 5, 0, 2, 0, 0, 7, 4}
+
+            };
+
+
+            for (int row = 0; row < 9; row++)
+            {
+
+                for (int col = 0; col < 9; col++)
+                {
+                    if (puzzle[row, col] != 0)
+                    {
+                        SetValue(col, row, puzzle[row, col], ChangeType.BoardSetup);
+                    }
+                }
+            }
+
+
+            printBoard(); 
           
         }
 
@@ -113,9 +102,9 @@ namespace SodkoSolverv2
             int section = (gridSection * 3);
             int row_Section = rowSection * 3;
 
-            for (int x = (rowSection - 1) * 3; x < section; x++)
+            for (int x = (rowSection - 1) * 3; x < row_Section; x++)
             {
-                for (int y = (gridSection - 1) * 3; y < row_Section; y++)
+                for (int y = (gridSection - 1) * 3; y < section; y++)
                 {
                     if (GameBoard[x, y].squareValue == value)
                     {
@@ -127,14 +116,14 @@ namespace SodkoSolverv2
             return false;
         }
 
-        public bool miniGridUpdate(int gridSection, int rowSection, int value)
+        public bool miniGridUpdate(int colsection, int rowSection, int value)
         {
-            int section = (gridSection * 3);
+            int section = (colsection * 3);
             int row_Section = rowSection * 3;
 
-            for (int x = (rowSection - 1) * 3; x < section; x++)
+            for (int x = (rowSection - 1) * 3; x < row_Section; x++)
             {
-                for (int y = (gridSection - 1) * 3; y < row_Section; y++)
+                for (int y = (colsection - 1) * 3; y < section; y++)
                 {
                     GameBoard[x, y].cantBe.Add(value); 
 
@@ -143,7 +132,6 @@ namespace SodkoSolverv2
 
             return false;
         }
-
 
         public bool SetValue(int col, int row, int value, ChangeType change)
         {
@@ -248,18 +236,86 @@ namespace SodkoSolverv2
             bool rowComplete = true;
             bool notSolved = true;
             ///fillGrid(random, rowComplete); 
-            fillGridv2(); 
+            fillGridV3();  
 
-            /*
-            while (rowComplete)
-            {
-                rowComplete = fillGrid(random, rowComplete);
-                gameBoard.printBoard(); 
-            }
-            */
+
 
         }
 
+        private void fillGridV3()
+        {
+            bool solved = false;
+
+            int lowestRow = -1;
+            int lowestCol = -1;
+            int lowestCount = -1;
+
+            Random random = new Random(); 
+
+
+            while (!solved)
+            {
+                for (int row = 0; row < 9; row++)
+                {
+                    for (int col = 0; col < 9; col++)
+                    {
+                        if (gameBoard.GameBoard[row, col].squareValue == 0)
+                        {
+                            var missing = CanBe.Where(item => !gameBoard.GameBoard[row, col].cantBe.Distinct().ToList().Contains(item)).ToList();
+
+                            if (lowestCount == -1 || lowestCount > missing.Count())
+                            {
+                                lowestRow = row;
+                                lowestCol = col; 
+                                lowestCount = missing.Count();
+                            }
+                        }
+                    }
+                }
+
+                if (lowestRow != -1 && lowestCol != -1)
+                {
+                    var guess = CanBe.Where(item => !gameBoard.GameBoard[lowestRow,lowestCol].cantBe.Contains(item)).ToArray();
+                    int randomGuess;
+
+                    if (guess.Count() > 1)
+                    {
+                        int index = random.Next(1, guess.Count() - 1);
+                        randomGuess = guess[index];
+                    }
+                    else
+                    {
+                        randomGuess = guess.First(); 
+                    }
+
+                    gameBoard.SetValue(lowestCol, lowestRow, randomGuess , Board.ChangeType.Update);
+                }
+
+                if (lowestCol == -1 && lowestRow == -1 && lowestCount == -1)
+                {
+                    solved = true;
+                    gameBoard.printBoard();
+                }
+
+
+
+                lowestCol = -1;
+                lowestRow = -1;
+                lowestCount = -1;
+
+
+
+
+            
+
+            }
+
+
+
+
+
+
+        }
 
         private void fillGridv2(){
             List<rowInfo> rowInfos = new List<rowInfo>();
